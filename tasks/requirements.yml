@@ -1,0 +1,5 @@
+---
+
+# this is used for logging. Only error will be logged.
+- name: Install moreutils for chronic
+  apt: pkg=moreutils state=installed

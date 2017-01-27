@@ -1,0 +1,36 @@
+---
+# tasks file for remote-playbook
+
+- include: requirements.yml
+
+- name: Create base dir
+  file:
+    name: "{{ external_playbook_basedir }}"
+    state: directory
+
+- name: Upload roles
+  copy:
+    src: "{{ item }}/"
+    dest: "{{ external_playbook_basedir }}/{{ item }}/"
+  with_items: "{{ external_playbook_role_list }}"
+
+- name: Upload playbooks and required files
+  copy:
+    src: "files/external_playbooks/{{ item }}"
+    dest: "{{ external_playbook_basedir }}/{{ item }}"
+  with_items: "{{ external_playbook_filelist }}"
+
+- name: Upload config files from template
+  template:
+    src: "files/external_playbooks/{{ item }}"
+    dest: "{{ external_playbook_basedir }}/{{ item | replace('.j2', '') }}"
+  with_items: "{{ external_playbook_template_list }}"
+
+- name: Set up cron
+  cron:
+    # cron_file: percona_backup
+    name: "{{ external_playbook_cron_name }}"
+    # -i needed for hiding warning
+    job: "cd {{ external_playbook_basedir }} && /usr/bin/chronic ansible-playbook {{ external_playbook_playbook_name }} -i \"{% raw %}{{ localhost }}{% endraw %},\" | tr \"\\n\" \"|\" | logger -p cron.error"
+    hour: "{{ external_playbook_cron_hour }}"
+    minute: "{{ external_playbook_cron_minute }}"
