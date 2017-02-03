@@ -2,6 +2,8 @@
 # defaults file for remote-playbook
 
 external_playbook_basedir: /root/backup_cron_playbook
+
+# TODO: we copy these to roles/ dir and we use basename so this has to contain exactly one slash!
 external_playbook_role_list:
   - roles/role-example
   - roles.galaxy/role-example2
@@ -17,3 +19,4 @@ external_playbook_cron_name: "unique name for cron"
 external_playbook_cron_hour: "set to number"
 external_playbook_cron_minute: "set to number"
 
+external_playbook_log_dir: "/var/log"

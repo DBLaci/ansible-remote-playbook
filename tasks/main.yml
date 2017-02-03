@@ -8,10 +8,15 @@
     name: "{{ external_playbook_basedir }}"
     state: directory
 
+- name: Create log dir
+  file:
+    name: "{{ external_playbook_log_dir }}"
+    state: directory
+
 - name: Upload roles
   copy:
     src: "{{ item }}/"
-    dest: "{{ external_playbook_basedir }}/{{ item }}/"
+    dest: "{{ external_playbook_basedir }}/roles/{{ item | basename }}/"
   with_items: "{{ external_playbook_role_list }}"
 
 - name: Upload playbooks and required files
@@ -31,6 +36,7 @@
     # cron_file: percona_backup
     name: "{{ external_playbook_cron_name }}"
     # -i needed for hiding warning
-    job: "cd {{ external_playbook_basedir }} && /usr/bin/chronic ansible-playbook {{ external_playbook_playbook_name }} -i \"{% raw %}{{ localhost }}{% endraw %},\" | tr \"\\n\" \"|\" | logger -p cron.error"
+    #job: "cd {{ external_playbook_basedir }} && /usr/bin/chronic ansible-playbook {{ external_playbook_playbook_name }} -i \"{% raw %}{{ localhost }}{% endraw %},\" | tr \"\\n\" \"|\" | logger -p cron.crit"
+    job: "cd {{ external_playbook_basedir }} && /usr/bin/chronic ansible-playbook {{ external_playbook_playbook_name }} -i \"{% raw %}{{ localhost }}{% endraw %},\" &> \"{{ external_playbook_log_dir }}/output_`date +\\%F_\\%H\\%M\\%S`.log\" || echo \"backup failed! see log on backup server!\" | logger -p cron.crit"
     hour: "{{ external_playbook_cron_hour }}"
     minute: "{{ external_playbook_cron_minute }}"
