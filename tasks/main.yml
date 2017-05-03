@@ -37,3 +37,11 @@
     job: "cd {{ external_playbook_basedir }} && ansible-playbook {{ external_playbook_playbook_name }} -i \"{% raw %}{{ localhost }}{% endraw %},\" &> \"{{ external_playbook_log_dir }}/output_`date +\\%F_\\%H\\%M\\%S`.log\" || echo \"backup failed! see log on backup server!\" | logger -p cron.crit"
     hour: "{{ external_playbook_cron_hour }}"
     minute: "{{ external_playbook_cron_minute }}"
+
+# the env variable is a hack in the ansible, at least in 2.1: http://docs.ansible.com/ansible/cron_module.html
+# For workaround I updated the crontab file manually.
+- name: Add bash SHELL env to the crontab
+  cron:
+    env: yes
+    name: SHELL
+    value: /bin/bash
