@@ -11,9 +11,11 @@
     state: directory
 
 - name: Upload roles
-  copy:
+  synchronize:
     src: "{{ item }}/"
     dest: "{{ external_playbook_basedir }}/roles/{{ item | basename }}/"
+    rsync_opts:
+      - "--exclude=.git"
   with_items: "{{ external_playbook_role_list }}"
 
 - name: Upload playbooks and required files
